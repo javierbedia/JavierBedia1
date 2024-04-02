@@ -7,7 +7,7 @@ on:
      - develop
  jobs:
   ci:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-22.04 
     steps:
       - name: checkout
         uses: actions/checkout@v4   
@@ -33,4 +33,44 @@ on:
             
       - name: docker push
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME1}}/edteam-fastapi-demo:${ github.sha }     
+          docker push ${{ secrets.DOCKER_USERNAME1}}/edteam-fastapi-demo:${ github.sha }  
+
+
+
+   cd:
+    runs-on: ubuntu-22.04 
+    steps:
+      - name: deploy
+  uses: appleboy/ssh-action@v1.0.3
+  env:
+    DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME1}}/edteam-fastapi-demo:${ github.sha }
+  with:
+    host: ${{ secrets.HOST }}
+    username: ${{ secrets.USERNAME }}
+    key: ${{ secrets.KEY }}
+    script: |
+      echo "Download new version"
+      docker pull $DOCKER_IMAGE
+      echo "Stop current version"
+      sleep 1
+      API=$(docker ps -q -f name=api)
+      if [ ! -z $API ]
+      then
+        docker stop $API
+        docker rm $API
+      fi
+      docker run -d --name api -p 80:8080 $DOCKER_IMAGE
+      - name: check service 
+    env:
+      ENDPOINT: ${{secrets.ENDPOINT}}
+    run: |
+     RESPONSE=$(curl -o /dev/null -s -w "%{http_code}\n" ${ENDPOINT} )
+     if [ $RESPONSE -ne "200"]
+     then
+      echo "Service unresponsive"
+      exit 1
+     fi
+     echo "success"
+
+
+
