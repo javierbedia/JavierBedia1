@@ -5,6 +5,7 @@ on:
    branches:
      - master
      - develop
+     - prueba
  jobs:
   ci:
     runs-on: ubuntu-22.04 
@@ -69,7 +70,7 @@ on:
      RESPONSE=$(curl --write-out '%{http_code}' --silent --output /dev/null ${ENDPOINT} )
      if [ $RESPONSE -ne "200"]
      then
-      echo "Service unresponsive"
+      echo "Service unresponsive no responde"
       exit 1
      fi
      echo "success"
