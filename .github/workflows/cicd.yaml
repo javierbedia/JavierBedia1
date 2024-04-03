@@ -6,7 +6,7 @@ on:
      - master
      - develop
      - prueba
- jobs:
+  jobs:
   ci:
     runs-on: ubuntu-22.04 
     steps:
@@ -34,9 +34,7 @@ on:
             
       - name: docker push
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME1}}/edteam-fastapi-demo:${ github.sha }  
-
-
+         docker push ${{ secrets.DOCKER_USERNAME1}}/edteam-fastapi-demo:${ github.sha }  
 
    cd:
     runs-on: ubuntu-22.04
